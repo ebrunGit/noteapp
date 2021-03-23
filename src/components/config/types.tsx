@@ -1,5 +1,7 @@
+export interface defaultStyleObject {}
+
 export interface pageTitleStyleObject {
-	font?: string;
+	marginLeft?: string;
 }
 
 export interface fieldStyleObject {

@@ -9,5 +9,7 @@ export const labels = {
 	firstViewTitle: 'Notes',
 	secondViewTitle: 'New note',
 	titleFieldLabel: 'Title...',
-	textFieldLabel: 'Enter text...'
+	textFieldLabel: 'Enter text...',
+	noNotes: 'No notes...',
+	linkDefaultText: ' - last updated on'
 };
