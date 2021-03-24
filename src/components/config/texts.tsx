@@ -11,5 +11,5 @@ export const labels = {
 	titleFieldLabel: 'Title...',
 	textFieldLabel: 'Enter text...',
 	noNotes: 'No notes...',
-	linkDefaultText: ' - last updated on'
+	linkDefaultText: ' - last updated on '
 };

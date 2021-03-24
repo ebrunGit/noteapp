@@ -2,29 +2,43 @@ import Button from '../uikit/button';
 import PageTitle from '../uikit/pageTitle';
 import Link from '../uikit/link';
 import { buttonTexts, labels } from '../config/texts';
-import { useEffect } from 'react';
 import Store from 'store';
+import { createUseStyles } from 'react-jss';
+import moment from 'moment';
 
 export default function FirstView() {
-	let data: { title: string; content: string; date: string }[] = [];
+	const data: { title: string; content: string; date: string }[] = setDataFromCache();
 
-	useEffect(() => {
-		Store.each((key, value) => {
-			if (key.includes('title')) data[parseInt(key.charAt(key.length))].title = value;
-			else if (key.includes('content')) data[parseInt(key.charAt(key.length))].content = value;
-			else if (key.includes('date')) data[parseInt(key.charAt(key.length))].date = value;
+	function setDataFromCache() {
+		let tmp: { title: string; content: string; date: string }[] = [];
+		if (localStorage.length > 0) {
+			for (let i = 0; i < localStorage.length / 3; i++) {
+				tmp.push({ title: '', content: '', date: '' });
+			}
+		}
+		Store.each((value, key) => {
+			if (key.includes('title')) tmp[parseInt(key.charAt(key.length - 1))].title = value;
+			else if (key.includes('date')) tmp[parseInt(key.charAt(key.length - 1))].date = value;
 		});
-	}, []);
+		return tmp;
+	}
 
+	console.log('data', data);
 	return (
 		<div>
-			<div style={styles.blockStyle}>
-				<PageTitle label={labels.firstViewTitle} style={styles.pageTitleStyle} />
-				<Button style={styles.buttonCreate} label={buttonTexts.createBtn} />
+			<div className={styles().blockStyle}>
+				<PageTitle label={labels.firstViewTitle} style={styles().pageTitleStyle} />
+				<Button style={styles().buttonCreate} label={buttonTexts.createBtn} />
 			</div>
-			<div style={styles.linksBlock}>
+			<div className={styles().linksBlock}>
 				{data.length > 0 ? (
-					data.map((set: { title: string; date: string }) => <Link title={set.title} date={set.date} />)
+					data.map((set: { title: string; date: string }, i: number) => (
+						<div key={i} style={{ paddingBottom: '10px' }}>
+							<Link title={set.title} date={set.date} />
+							<Button style={styles().buttonEdit} label={buttonTexts.editBtn} />
+							<Button style={styles().buttonDelete} label={buttonTexts.deleteBtn} />
+						</div>
+					))
 				) : (
 					<span>{labels.noNotes}</span>
 				)}
@@ -33,29 +47,32 @@ export default function FirstView() {
 	);
 }
 
-const styles = {
+const styles = createUseStyles({
 	buttonCreate: {
 		backgroundColor: '#008839',
-		position: 'absolute' as 'absolute', // workaround for a typescript behaviour working...
+		position: 'absolute',
 		top: 0,
-		right: 0,
-		'&:hover': {
-			backgroundColor: 'black'
-		}
+		right: 0
+	},
+	buttonEdit: {
+		backgroundColor: '#2c86b7',
+		marginLeft: '10px'
+	},
+	buttonDelete: {
+		backgroundColor: '#890d09',
+		marginLeft: '10px'
 	},
 	blockStyle: {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		position: 'relative' as 'relative' // workaround for a typescript behaviour working...
+		position: 'relative'
 	},
 	pageTitleStyle: {
 		marginTop: 10
 	},
 	linksBlock: {
-		marginTop: '100px',
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center'
+		margin: '100px auto 0 auto',
+		width: 'fit-content'
 	}
-};
+});
