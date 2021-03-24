@@ -1,9 +1,5 @@
 export interface defaultStyleObject {}
 
-export interface pageTitleStyleObject {
-	marginLeft?: string;
-}
-
 export interface fieldStyleObject {
 	color?: string;
 	borderRadius?: string;
