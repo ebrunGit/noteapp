@@ -18,8 +18,14 @@ export default function ReadView(props: Props) {
 					label={buttonTexts.editBtn}
 					path={paths.pathToEditView}
 					data={data}
+					history={props.history}
 				/>
-				<Button style={styles().buttonEdit} label={buttonTexts.homeBtn} path={paths.pathToHomeView} />
+				<Button
+					style={styles().buttonEdit}
+					label={buttonTexts.homeBtn}
+					path={paths.pathToHomeView}
+					history={props.history}
+				/>
 			</div>
 		</div>
 	);

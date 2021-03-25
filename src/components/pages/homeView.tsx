@@ -4,10 +4,21 @@ import Link from '../uikit/link';
 import { buttonTexts, labels, paths } from '../config/textReferences';
 import Store from 'store';
 import { createUseStyles } from 'react-jss';
-import { noteDataType } from '../config/types';
+import { noteDataType, Props } from '../config/types';
+import { useEffect, useState } from 'react';
 
-export default function HomeView() {
-	const data: noteDataType[] = setDataFromCache();
+export default function HomeView(props: Props) {
+	const [ data, setData ] = useState(setDataFromCache());
+
+	useEffect(() => {
+		window.onstorage = () => {
+			console.log('in storage listener');
+			//setData(() => setDataFromCache());
+		};
+		return () => {
+			window.removeEventListener('storage', () => setData(() => setDataFromCache()));
+		};
+	}, []);
 
 	function setDataFromCache() {
 		let tmp: noteDataType[] = [];
@@ -27,24 +38,44 @@ export default function HomeView() {
 		return tmp;
 	}
 
+	function DeleteData(i: number) {
+		localStorage.removeItem('title' + i);
+		localStorage.removeItem('content' + i);
+		localStorage.removeItem('date' + i);
+	}
+
 	return (
 		<div>
 			<div className={styles().blockStyle}>
 				<PageTitle label={labels.firstViewTitle} style={styles().pageTitleStyle} />
-				<Button style={styles().buttonCreate} label={buttonTexts.createBtn} path={paths.pathToCreateView} />
+				<Button
+					style={styles().buttonCreate}
+					label={buttonTexts.createBtn}
+					path={paths.pathToCreateView}
+					history={props.history}
+				/>
 			</div>
 			<div className={styles().linksBlock}>
 				{data.length > 0 ? (
 					data.map((set: noteDataType, i: number) => (
 						<div key={i} style={{ paddingBottom: '10px' }}>
+							{/* du plus recent au plus ancien */}
 							<Link path={paths.pathToReadView} data={set} />
 							<Button
 								style={styles().buttonEdit}
 								label={buttonTexts.editBtn}
 								path={paths.pathToEditView}
 								data={set}
+								history={props.history}
 							/>
-							<Button style={styles().buttonDelete} label={buttonTexts.deleteBtn} path="" data={set} />
+							<Button
+								style={styles().buttonDelete}
+								label={buttonTexts.deleteBtn}
+								path=""
+								data={set}
+								onDelete={() => DeleteData(set.index)}
+								history={props.history}
+							/>
 						</div>
 					))
 				) : (

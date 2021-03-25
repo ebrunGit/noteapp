@@ -1,3 +1,5 @@
+import { History } from 'history';
+
 export interface noteDataType {
 	title: string;
 	content: string;
@@ -7,4 +9,5 @@ export interface noteDataType {
 
 export interface Props {
 	location: any;
+	history: History;
 }

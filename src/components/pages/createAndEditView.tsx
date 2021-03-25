@@ -1,24 +1,16 @@
+import { useState } from 'react';
 import Button from '../uikit/button';
 import PageTitle from '../uikit/pageTitle';
 import { createUseStyles } from 'react-jss';
 import { Props } from '../config/types';
 import { buttonTexts, labels, paths } from '../config/textReferences';
-import React, { useState } from 'react';
-import { useHistory } from 'react-router';
+import Toastr from 'toastr';
 
 export default function CreateAndEditView(props: Props) {
-	const history = useHistory();
 	const data = props.location.state;
 	const [ newNote, setNewNote ] = useState({ index: 0, title: '', content: '', date: '' });
 
-	function UpdateData(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
-		const { name, value } = { name: event.target.name, value: event.target.value };
-		name === 'title'
-			? setNewNote((note) => ({ ...note, title: value }))
-			: setNewNote((note) => ({ ...note, content: value }));
-	}
-
-	function saveData() {
+	function SaveData() {
 		if (newNote.title && newNote.content) {
 			if (data) {
 				const currentIndex = data.index;
@@ -31,8 +23,10 @@ export default function CreateAndEditView(props: Props) {
 				localStorage.setItem('content' + storageIndex, newNote.content);
 				localStorage.setItem('date' + storageIndex, newNote.date);
 			}
-			history.push(paths.pathToHomeView);
+			Toastr.success('Note saved!');
+			props.history.push(paths.pathToHomeView);
 		} else {
+			//toastr + make input and textarea compulsory
 		}
 	}
 
@@ -41,14 +35,14 @@ export default function CreateAndEditView(props: Props) {
 			<div className={styles().blockStyle}>
 				<PageTitle label={(data && data.title) || labels.secondViewTitle} style={styles().pageTitleStyle} />
 			</div>
-			<form className={styles().fieldsWrapper} onSubmit={saveData}>
+			<form className={styles().fieldsWrapper} onSubmit={() => SaveData()}>
 				<input
 					name="title"
 					type="text"
 					className={styles().titleInput}
 					defaultValue={(data && data.title) || null}
 					placeholder={!data ? labels.titleFieldLabel : ''}
-					onChange={(e) => UpdateData(e)}
+					onChange={(e) => setNewNote((note) => ({ ...note, title: e.target.value }))}
 					readOnly={false}
 				/>
 				<textarea
@@ -56,14 +50,25 @@ export default function CreateAndEditView(props: Props) {
 					className={styles().textArea}
 					defaultValue={(data && data.content) || null}
 					placeholder={!data ? labels.textFieldLabel : ''}
-					onChange={(e) => UpdateData(e)}
+					onChange={(e) => setNewNote((note) => ({ ...note, content: e.target.value }))}
 					readOnly={false}
 				/>
+				<div className={styles().buttonEditWrapper}>
+					<Button
+						style={styles().buttonCancel}
+						label={buttonTexts.cancelBtn}
+						path={paths.pathToHomeView}
+						history={props.history}
+					/>
+					<Button
+						style={styles().buttonSave}
+						label={buttonTexts.saveBtn}
+						path=""
+						type="submit"
+						history={props.history}
+					/>
+				</div>
 			</form>
-			<div className={styles().buttonEditWrapper}>
-				<Button style={styles().buttonCancel} label={buttonTexts.cancelBtn} path={paths.pathToHomeView} />
-				<Button style={styles().buttonSave} label={buttonTexts.saveBtn} path="" />
-			</div>
 		</div>
 	);
 }
