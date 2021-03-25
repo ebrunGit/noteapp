@@ -4,23 +4,36 @@ import { createUseStyles } from 'react-jss';
 import { Props } from '../config/types';
 import { buttonTexts, labels, paths } from '../config/textReferences';
 import React, { useState } from 'react';
+import { useHistory } from 'react-router';
 
 export default function CreateAndEditView(props: Props) {
+	const history = useHistory();
 	const data = props.location.state;
-	const [ isEdited, setIsEdited ] = useState(false);
+	const [ newNote, setNewNote ] = useState({ index: 0, title: '', content: '', date: '' });
 
 	function UpdateData(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
-		if (data) {
-			const currentIndex = data.index;
-			console.log(data, event.target.value);
-			if (event.target.name === 'title') localStorage.setItem('title' + currentIndex, event.target.value);
-			if (event.target.name === 'content') localStorage.setItem('content' + currentIndex, event.target.value);
+		const { name, value } = { name: event.target.name, value: event.target.value };
+		name === 'title'
+			? setNewNote((note) => ({ ...note, title: value }))
+			: setNewNote((note) => ({ ...note, content: value }));
+	}
+
+	function saveData() {
+		if (newNote.title && newNote.content) {
+			if (data) {
+				const currentIndex = data.index;
+				localStorage.setItem('title' + currentIndex, newNote.title);
+				localStorage.setItem('content' + currentIndex, newNote.content);
+				localStorage.setItem('date' + currentIndex, newNote.date);
+			} else {
+				const storageIndex = localStorage.length / 3;
+				localStorage.setItem('title' + storageIndex, newNote.title);
+				localStorage.setItem('content' + storageIndex, newNote.content);
+				localStorage.setItem('date' + storageIndex, newNote.date);
+			}
+			history.push(paths.pathToHomeView);
 		} else {
-			const storageIndex = (localStorage.length - 1) / 3;
-			if (event.target.name === 'title') localStorage.setItem('title' + storageIndex + 1, event.target.value);
-			if (event.target.name === 'content') localStorage.setItem('content' + storageIndex + 1, event.target.value);
 		}
-		setIsEdited(true);
 	}
 
 	return (
@@ -28,26 +41,28 @@ export default function CreateAndEditView(props: Props) {
 			<div className={styles().blockStyle}>
 				<PageTitle label={(data && data.title) || labels.secondViewTitle} style={styles().pageTitleStyle} />
 			</div>
-			<div className={styles().fieldsWrapper}>
+			<form className={styles().fieldsWrapper} onSubmit={saveData}>
 				<input
 					name="title"
 					type="text"
 					className={styles().titleInput}
-					defaultValue={(data && data.title) || labels.titleFieldLabel}
+					defaultValue={(data && data.title) || null}
+					placeholder={!data ? labels.titleFieldLabel : ''}
 					onChange={(e) => UpdateData(e)}
 					readOnly={false}
 				/>
 				<textarea
 					name="content"
 					className={styles().textArea}
-					defaultValue={(data && data.content) || labels.textFieldLabel}
+					defaultValue={(data && data.content) || null}
+					placeholder={!data ? labels.textFieldLabel : ''}
 					onChange={(e) => UpdateData(e)}
 					readOnly={false}
 				/>
-			</div>
+			</form>
 			<div className={styles().buttonEditWrapper}>
-				{isEdited && <span>{labels.editSaved}</span>}
-				<Button style={styles().buttonEdit} label={buttonTexts.cancelBtn} path={paths.pathToHomeView} />
+				<Button style={styles().buttonCancel} label={buttonTexts.cancelBtn} path={paths.pathToHomeView} />
+				<Button style={styles().buttonSave} label={buttonTexts.saveBtn} path="" />
 			</div>
 		</div>
 	);
@@ -86,7 +101,7 @@ const styles = createUseStyles({
 		marginBottom: '20px',
 		width: '100%'
 	},
-	buttonEdit: {
+	buttonCancel: {
 		backgroundColor: '#2c86b7',
 		marginRight: '10px'
 	},

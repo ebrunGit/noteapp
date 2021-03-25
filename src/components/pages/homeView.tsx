@@ -13,14 +13,15 @@ export default function HomeView() {
 		let tmp: noteDataType[] = [];
 		if (localStorage.length > 0) {
 			for (let i = 0; i < localStorage.length / 3; i++) {
-				tmp.push({ title: '', content: '', date: '' });
+				tmp.push({ index: 0, title: '', content: '', date: '' });
 			}
 		}
-		console.log(localStorage.length);
-		console.log(tmp);
+
 		Store.each((value, key) => {
-			if (key.includes('title')) tmp[parseInt(key.charAt(key.length - 1))].title = value;
-			if (key.includes('content')) tmp[parseInt(key.charAt(key.length - 1))].content = value;
+			if (key.includes('title')) {
+				tmp[parseInt(key.charAt(key.length - 1))].title = value;
+				tmp[parseInt(key.charAt(key.length - 1))].index = parseInt(key.charAt(key.length - 1));
+			} else if (key.includes('content')) tmp[parseInt(key.charAt(key.length - 1))].content = value;
 			else if (key.includes('date')) tmp[parseInt(key.charAt(key.length - 1))].date = value;
 		});
 		return tmp;
@@ -43,7 +44,7 @@ export default function HomeView() {
 								path={paths.pathToEditView}
 								data={set}
 							/>
-							<Button style={styles().buttonDelete} label={buttonTexts.deleteBtn} path="" />
+							<Button style={styles().buttonDelete} label={buttonTexts.deleteBtn} path="" data={set} />
 						</div>
 					))
 				) : (

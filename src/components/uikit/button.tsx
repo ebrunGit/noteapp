@@ -14,11 +14,14 @@ export default function Button({
 }) {
 	const history = useHistory();
 	function GoToPath() {
-		history.push(path, data && data);
+		history.push(path, data);
 	}
 
 	function GotToDelete() {
-		console.log('DELETE');
+		const i = data?.index;
+		localStorage.removeItem('title' + i);
+		localStorage.removeItem('content' + i);
+		localStorage.removeItem('date' + i);
 	}
 
 	return (
