@@ -1,13 +1,15 @@
-import { labels } from '../config/texts';
+import { labels } from '../config/textReferences';
+import { Link } from 'react-router-dom';
+import { noteDataType } from '../config/types';
 
-export default function Link({ style, title, date }: { style?: string; title: string; date: string }) {
+export default function LinkUi({ style, data, path }: { data: noteDataType; path: string; style?: string }) {
 	return (
-		<a href="" className={style}>
+		<Link to={{ pathname: path, state: data }} className={style}>
+			{data.title}
 			<i>
-				{title}
 				{labels.linkDefaultText}
-				{date}
+				{data.date}
 			</i>
-		</a>
+		</Link>
 	);
 }
