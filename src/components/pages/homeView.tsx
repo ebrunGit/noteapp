@@ -5,20 +5,11 @@ import { buttonTexts, labels, paths } from '../config/textReferences';
 import Store from 'store';
 import { createUseStyles } from 'react-jss';
 import { noteDataType, Props } from '../config/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function HomeView(props: Props) {
-	const [ data, setData ] = useState(setDataFromCache());
-
-	useEffect(() => {
-		window.onstorage = () => {
-			console.log('in storage listener');
-			//setData(() => setDataFromCache());
-		};
-		return () => {
-			window.removeEventListener('storage', () => setData(() => setDataFromCache()));
-		};
-	}, []);
+	const [ data, setData ] = useState<noteDataType[]>(setDataFromCache());
+	const styles = useStyles();
 
 	function setDataFromCache() {
 		let tmp: noteDataType[] = [];
@@ -42,39 +33,53 @@ export default function HomeView(props: Props) {
 		localStorage.removeItem('title' + i);
 		localStorage.removeItem('content' + i);
 		localStorage.removeItem('date' + i);
+		ResetIndexes(i);
+		setData(() => setDataFromCache());
+	}
+
+	function ResetIndexes(i: number) {
+		let arr: string[][] = [];
+		Store.each((value, key) => arr.push([ key, value ]));
+		Store.clearAll();
+		for (let [ key, value ] of arr) {
+			if (parseInt(key.charAt(key.length - 1)) > i) {
+				let str = key.split('');
+				let previousIndex = parseInt(str.splice(key.length - 1, 1)[0]);
+				let newKey = str.join().replaceAll(',', '');
+				key = newKey + (previousIndex - 1).toString();
+			}
+			Store.set(key, value);
+		}
 	}
 
 	return (
 		<div>
-			<div className={styles().blockStyle}>
-				<PageTitle label={labels.firstViewTitle} style={styles().pageTitleStyle} />
+			<div className={styles.blockStyle}>
+				<PageTitle label={labels.firstViewTitle} style={styles.pageTitleStyle} />
 				<Button
-					style={styles().buttonCreate}
+					type="button"
+					style={styles.buttonCreate}
 					label={buttonTexts.createBtn}
-					path={paths.pathToCreateView}
-					history={props.history}
+					onClick={() => props.history.push(paths.pathToCreateView)}
 				/>
 			</div>
-			<div className={styles().linksBlock}>
+			<div className={styles.linksBlock}>
 				{data.length > 0 ? (
 					data.map((set: noteDataType, i: number) => (
 						<div key={i} style={{ paddingBottom: '10px' }}>
 							{/* du plus recent au plus ancien */}
 							<Link path={paths.pathToReadView} data={set} />
 							<Button
-								style={styles().buttonEdit}
+								type="button"
+								style={styles.buttonEdit}
 								label={buttonTexts.editBtn}
-								path={paths.pathToEditView}
-								data={set}
-								history={props.history}
+								onClick={() => props.history.push(paths.pathToEditView, set)}
 							/>
 							<Button
-								style={styles().buttonDelete}
+								type="delete"
+								style={styles.buttonDelete}
 								label={buttonTexts.deleteBtn}
-								path=""
-								data={set}
 								onDelete={() => DeleteData(set.index)}
-								history={props.history}
 							/>
 						</div>
 					))
@@ -86,7 +91,7 @@ export default function HomeView(props: Props) {
 	);
 }
 
-const styles = createUseStyles({
+const useStyles = createUseStyles({
 	buttonCreate: {
 		backgroundColor: '#008839',
 		position: 'absolute',

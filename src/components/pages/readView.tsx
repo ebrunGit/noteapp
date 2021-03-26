@@ -14,17 +14,16 @@ export default function ReadView(props: Props) {
 			<div className={styles().linksBlock}>{data.content}</div>
 			<div className={styles().buttonEditWrapper}>
 				<Button
+					type="button"
 					style={styles().buttonEdit}
 					label={buttonTexts.editBtn}
-					path={paths.pathToEditView}
-					data={data}
-					history={props.history}
+					onClick={() => props.history.push(paths.pathToEditView, data)}
 				/>
 				<Button
+					type="button"
 					style={styles().buttonEdit}
 					label={buttonTexts.homeBtn}
-					path={paths.pathToHomeView}
-					history={props.history}
+					onClick={() => props.history.push(paths.pathToHomeView)}
 				/>
 			</div>
 		</div>

@@ -3,77 +3,85 @@ import Button from '../uikit/button';
 import PageTitle from '../uikit/pageTitle';
 import { createUseStyles } from 'react-jss';
 import { Props } from '../config/types';
-import { buttonTexts, labels, paths } from '../config/textReferences';
-import Toastr from 'toastr';
+import { buttonTexts, labels, paths, toastrMessages } from '../config/textReferences';
+import { toastrCreationSuccess, toastrModifSuccess, toastrWarning } from '../config/toastrConfig';
+import moment from 'moment';
 
 export default function CreateAndEditView(props: Props) {
 	const data = props.location.state;
-	const [ newNote, setNewNote ] = useState({ index: 0, title: '', content: '', date: '' });
+	const styles = useStyles();
+	const [ newNote, setNewNote ] = useState({
+		index: (data && data.index) || 0,
+		title: (data && data.title) || null,
+		content: (data && data.content) || null,
+		date: (data && data.date) || null
+	});
 
-	function SaveData() {
-		if (newNote.title && newNote.content) {
-			if (data) {
-				const currentIndex = data.index;
-				localStorage.setItem('title' + currentIndex, newNote.title);
-				localStorage.setItem('content' + currentIndex, newNote.content);
-				localStorage.setItem('date' + currentIndex, newNote.date);
-			} else {
-				const storageIndex = localStorage.length / 3;
-				localStorage.setItem('title' + storageIndex, newNote.title);
-				localStorage.setItem('content' + storageIndex, newNote.content);
-				localStorage.setItem('date' + storageIndex, newNote.date);
-			}
-			Toastr.success('Note saved!');
+	function SetDate() {
+		return `${moment().format('MM/DD/YYYY')} at ${moment().format('h:mma')}`;
+	}
+
+	function SaveData(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		if (!data && newNote.title && newNote.content) {
+			// Creation
+			const storageIndex = localStorage.length / 3;
+			localStorage.setItem('title' + storageIndex, newNote.title);
+			localStorage.setItem('content' + storageIndex, newNote.content);
+			localStorage.setItem('date' + storageIndex, SetDate());
+			toastrCreationSuccess();
 			props.history.push(paths.pathToHomeView);
-		} else {
-			//toastr + make input and textarea compulsory
-		}
+		} else if (data && newNote.title && newNote.content) {
+			// Update
+			const currentIndex = data.index;
+			localStorage.setItem('title' + currentIndex, newNote.title);
+			localStorage.setItem('content' + currentIndex, newNote.content);
+			localStorage.setItem('date' + currentIndex, SetDate());
+			toastrModifSuccess();
+			props.history.push(paths.pathToHomeView);
+		} else toastrWarning();
 	}
 
 	return (
 		<div>
-			<div className={styles().blockStyle}>
-				<PageTitle label={(data && data.title) || labels.secondViewTitle} style={styles().pageTitleStyle} />
+			<div className={styles.blockStyle}>
+				<PageTitle label={(data && data.title) || labels.secondViewTitle} style={styles.pageTitleStyle} />
 			</div>
-			<form className={styles().fieldsWrapper} onSubmit={() => SaveData()}>
+			<form className={styles.fieldsWrapper} onSubmit={(e) => SaveData(e)}>
 				<input
 					name="title"
 					type="text"
-					className={styles().titleInput}
+					className={styles.titleInput}
 					defaultValue={(data && data.title) || null}
 					placeholder={!data ? labels.titleFieldLabel : ''}
-					onChange={(e) => setNewNote((note) => ({ ...note, title: e.target.value }))}
+					onChange={(e) =>
+						setNewNote((note) => ({ ...note, title: e.target.value === '' ? null : e.target.value }))}
 					readOnly={false}
 				/>
 				<textarea
 					name="content"
-					className={styles().textArea}
+					className={styles.textArea}
 					defaultValue={(data && data.content) || null}
 					placeholder={!data ? labels.textFieldLabel : ''}
-					onChange={(e) => setNewNote((note) => ({ ...note, content: e.target.value }))}
+					onChange={(e) =>
+						setNewNote((note) => ({ ...note, content: e.target.value === '' ? null : e.target.value }))}
 					readOnly={false}
 				/>
-				<div className={styles().buttonEditWrapper}>
+				<div className={styles.buttonEditWrapper}>
 					<Button
-						style={styles().buttonCancel}
+						type="button"
+						style={styles.buttonCancel}
 						label={buttonTexts.cancelBtn}
-						path={paths.pathToHomeView}
-						history={props.history}
+						onClick={() => props.history.push(paths.pathToHomeView, data)}
 					/>
-					<Button
-						style={styles().buttonSave}
-						label={buttonTexts.saveBtn}
-						path=""
-						type="submit"
-						history={props.history}
-					/>
+					<Button type="save" style={styles.buttonSave} label={buttonTexts.saveBtn} />
 				</div>
 			</form>
 		</div>
 	);
 }
 
-const styles = createUseStyles({
+const useStyles = createUseStyles({
 	blockStyle: {
 		display: 'flex',
 		alignItems: 'center',
@@ -117,5 +125,8 @@ const styles = createUseStyles({
 		display: 'flex',
 		justifyContent: 'center',
 		marginTop: '50px'
+	},
+	warning: {
+		color: 'red'
 	}
 });

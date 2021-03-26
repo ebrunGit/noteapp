@@ -1,34 +1,36 @@
-import { noteDataType } from '../config/types';
-import { History } from 'history';
-
 export default function Button({
 	style,
 	label,
-	path,
-	data,
 	type,
-	history,
-	onDelete
+	onDelete,
+	onClick
 }: {
 	style: string;
 	label: string;
-	path: string;
-	history: History;
-	data?: noteDataType;
-	type?: 'button' | 'submit' | 'reset' | undefined;
+	type: string;
 	onDelete?: () => void;
+	onClick?: () => void;
 }) {
-	function GoToPath() {
-		history.push(path, data);
-	}
+	switch (type) {
+		case 'save':
+			return (
+				<button className={style} type="submit" onClick={onClick}>
+					{label}
+				</button>
+			);
 
-	return type ? (
-		<button className={style} type={type}>
-			{label}
-		</button>
-	) : (
-		<button className={style} onClick={path ? GoToPath : onDelete}>
-			{label}
-		</button>
-	);
+		case 'delete':
+			return (
+				<button className={style} onClick={onDelete}>
+					{label}
+				</button>
+			);
+
+		default:
+			return (
+				<button className={style} onClick={onClick}>
+					{label}
+				</button>
+			);
+	}
 }
