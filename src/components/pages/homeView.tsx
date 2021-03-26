@@ -68,7 +68,7 @@ export default function HomeView(props: Props) {
 					data.map((set: noteDataType, i: number) => (
 						<div key={i} style={{ paddingBottom: '10px' }}>
 							{/* du plus recent au plus ancien */}
-							<Link path={paths.pathToReadView} data={set} />
+							<Link path={paths.pathToReadView} data={set} style={styles.links} />
 							<Button
 								type="button"
 								style={styles.buttonEdit}
@@ -119,5 +119,12 @@ const useStyles = createUseStyles({
 		margin: '100px auto 0 auto',
 		width: 'fit-content',
 		padding: '0 20px'
+	},
+	links: {
+		textDecoration: 'none',
+		color: '#000',
+		'&:hover': {
+			color: '#007704'
+		}
 	}
 });

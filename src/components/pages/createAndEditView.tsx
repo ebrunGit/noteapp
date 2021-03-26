@@ -3,7 +3,7 @@ import Button from '../uikit/button';
 import PageTitle from '../uikit/pageTitle';
 import { createUseStyles } from 'react-jss';
 import { Props } from '../config/types';
-import { buttonTexts, labels, paths, toastrMessages } from '../config/textReferences';
+import { buttonTexts, labels, paths } from '../config/textReferences';
 import { toastrCreationSuccess, toastrModifSuccess, toastrWarning } from '../config/toastrConfig';
 import moment from 'moment';
 
