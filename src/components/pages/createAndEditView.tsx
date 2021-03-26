@@ -125,8 +125,5 @@ const useStyles = createUseStyles({
 		display: 'flex',
 		justifyContent: 'center',
 		marginTop: '50px'
-	},
-	warning: {
-		color: 'red'
 	}
 });
