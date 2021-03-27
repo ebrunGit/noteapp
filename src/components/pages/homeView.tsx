@@ -6,6 +6,7 @@ import Store from 'store';
 import { createUseStyles } from 'react-jss';
 import { noteDataType, Props } from '../config/types';
 import { useState } from 'react';
+import moment from 'moment';
 
 export default function HomeView(props: Props) {
 	const [ data, setData ] = useState<noteDataType[]>(setDataFromCache());
@@ -26,7 +27,24 @@ export default function HomeView(props: Props) {
 			} else if (key.includes('content')) tmp[parseInt(key.charAt(key.length - 1))].content = value;
 			else if (key.includes('date')) tmp[parseInt(key.charAt(key.length - 1))].date = value;
 		});
+		SortByMostRecent(tmp);
 		return tmp;
+	}
+
+	function SortByMostRecent(data: noteDataType[]) {
+		data.sort((a, b) => {
+			// transform strings of date and time into moment type data for comparison
+			let timeA = moment(a.date.split(' ')[2], [ 'hh:mmA' ]).format('HH:mm');
+			let dateA = moment(a.date.split(' ')[0]).format('MM/DD/YYYY');
+			let dtA = moment(dateA + ' ' + timeA);
+			let timeB = moment(b.date.split(' ')[2], [ 'hh:mmA' ]).format('HH:mm');
+			let dateB = moment(b.date.split(' ')[0]).format('MM/DD/YYYY');
+			let dtB = moment(dateB + ' ' + timeB);
+
+			if (dtA.diff(dtB) < 0) return 1;
+			else if (dtA.diff(dtB) > 0) return -1;
+			else return 0;
+		});
 	}
 
 	function DeleteData(i: number) {
@@ -67,7 +85,6 @@ export default function HomeView(props: Props) {
 				{data.length > 0 ? (
 					data.map((set: noteDataType, i: number) => (
 						<div key={i} style={{ paddingBottom: '10px' }}>
-							{/* du plus recent au plus ancien */}
 							<Link path={paths.pathToReadView} data={set} style={styles.links} />
 							<Button
 								type="button"
